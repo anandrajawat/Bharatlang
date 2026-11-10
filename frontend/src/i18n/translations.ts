@@ -720,3 +720,4 @@ export const translations: Record<string, TranslationDictionary> = {
 export const getTranslation = (lang: string): TranslationDictionary => {
   return translations[lang] || translations.mr;
 };
+
