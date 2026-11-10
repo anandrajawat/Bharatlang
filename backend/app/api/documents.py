@@ -141,3 +141,4 @@ async def reindex_all_documents(db: Session = Depends(get_db)):
         "message": f"Successfully reindexed {total_reindexed} documents.",
         "stats": faiss_retriever.get_stats()
     }
+

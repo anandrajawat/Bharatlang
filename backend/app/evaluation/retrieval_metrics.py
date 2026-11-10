@@ -135,3 +135,4 @@ def evaluate_retrieval_benchmark(top_k: int = 4) -> Dict[str, Any]:
         "unsupported_claim_suppression": round(sum(1 for r in results_log if r["type"] == "unsupported" and r["retrieved_count"] == 0) / 4.0, 2),
         "results": results_log[:10]  # Preview first 10
     }
+

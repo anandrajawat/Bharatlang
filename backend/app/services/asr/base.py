@@ -56,3 +56,4 @@ class ASREngine(ABC):
     ) -> TranscriptionResult:
         """Transcribes preprocessed 16kHz float32 audio array."""
         pass
+

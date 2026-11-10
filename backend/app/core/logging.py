@@ -31,3 +31,4 @@ class LatencyLoggingMiddleware(BaseHTTPMiddleware):
             duration_ms = (time.time() - start_time) * 1000
             logger.error(f"{method} {path} failed: {str(e)} ({duration_ms:.1f}ms)")
             raise
+

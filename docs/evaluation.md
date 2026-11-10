@@ -76,3 +76,4 @@ Measurements captured during active continuous processing:
 | **Peak Full Pipeline Execution** | **310%** | **Active Metal** | **~2.01 GB** |
 
 > **Conclusion:** The entire stack operates comfortably within 2.1 GB of the available 16 GB unified RAM, maintaining a cool thermal envelope with zero CPU thermal throttling on MacBook Air.
+

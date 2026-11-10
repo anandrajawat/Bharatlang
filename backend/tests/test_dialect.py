@@ -41,3 +41,4 @@ def test_glossary_presence():
     assert "शेतकरी कर्जमाफी" in GLOSSARY_MARATHI_ENGLISH
     assert "पीक विमा" in GLOSSARY_MARATHI_ENGLISH
     assert "नमो शेतकरी महासन्मान निधी" in GLOSSARY_MARATHI_ENGLISH
+

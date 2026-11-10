@@ -153,3 +153,4 @@ flowchart TD
 | **Total Resident Memory** | — | — | **~2.01 GB / 16 GB (12.5%)** |
 
 The system leaves over 13 GB of unified memory completely free for OS and multi-tasking workflows.
+

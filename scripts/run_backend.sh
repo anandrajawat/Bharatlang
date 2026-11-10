@@ -37,3 +37,4 @@ echo "🚀 Starting BharatLangTech AI FastAPI Backend on http://${HOST}:${PORT}"
 echo "======================================================================"
 
 exec python -m uvicorn backend.app.main:app --host "$HOST" --port "$PORT" --reload
+

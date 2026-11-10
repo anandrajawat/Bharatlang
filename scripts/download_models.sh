@@ -90,3 +90,4 @@ print('✅ faster-whisper small cached successfully.')
 echo "======================================================================"
 echo "🎉 All local AI models are cached and verified for offline operation!"
 echo "======================================================================"
+

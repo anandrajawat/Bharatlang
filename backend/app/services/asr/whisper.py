@@ -129,3 +129,4 @@ class FasterWhisperEngine(ASREngine):
         except Exception as e:
             logger.error(f"Whisper transcription error: {e}")
             raise
+

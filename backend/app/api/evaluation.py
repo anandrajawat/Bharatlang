@@ -81,3 +81,4 @@ async def trigger_rag_benchmark():
         "status": "success",
         "results": res
     }
+

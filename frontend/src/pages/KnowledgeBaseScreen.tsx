@@ -294,3 +294,4 @@ export const KnowledgeBaseScreen: React.FC = () => {
     </div>
   );
 };
+

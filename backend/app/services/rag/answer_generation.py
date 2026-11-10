@@ -66,3 +66,4 @@ async def answer_government_scheme_query(
         "is_fallback": llm_result.get("is_fallback", False),
         "total_latency_sec": round(duration, 3)
     }
+

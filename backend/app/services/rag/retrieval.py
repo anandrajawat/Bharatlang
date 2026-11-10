@@ -143,3 +143,4 @@ class FAISSRetriever:
         }
 
 faiss_retriever = FAISSRetriever()
+

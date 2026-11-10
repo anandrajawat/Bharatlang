@@ -87,3 +87,4 @@ def extract_text_from_pdf(pdf_path: str, min_chars_for_native: int = 40) -> List
 
     doc.close()
     return pages_data
+

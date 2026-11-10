@@ -61,3 +61,4 @@ settings = Settings()
 # Ensure directories exist
 for path in [settings.DOCUMENTS_DIR, settings.INDEXES_DIR, settings.AUDIO_DIR, settings.EVALUATIONS_DIR]:
     path.mkdir(parents=True, exist_ok=True)
+

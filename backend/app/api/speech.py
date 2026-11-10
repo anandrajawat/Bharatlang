@@ -115,3 +115,4 @@ async def select_asr_model(model_name: str = Form(...)):
     if not success:
         raise HTTPException(status_code=400, detail=f"Invalid model name '{model_name}'.")
     return {"status": "success", "active_model": model_name}
+

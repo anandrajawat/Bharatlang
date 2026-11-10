@@ -129,3 +129,4 @@ echo "🎉 Setup complete! Next steps:"
 echo " 1. Run ./scripts/download_models.sh to pull and verify local AI models."
 echo " 2. Run ./scripts/start.sh to launch both Backend and Frontend."
 echo "======================================================================"
+

@@ -98,3 +98,4 @@ def test_feedback_submission_scenario_9():
     list_fb = client.get("/api/feedback")
     assert list_fb.status_code == 200
     assert len(list_fb.json()) > 0
+

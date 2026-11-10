@@ -209,3 +209,4 @@ This project is licensed under the Apache 2.0 License.
 * [Tesseract OCR](https://github.com/tesseract-ocr/tesseract)
 * [PyMuPDF](https://pymupdf.readthedocs.io/)
 * [FastAPI](https://fastapi.tiangolo.com/) & [React 19](https://react.dev/)
+

@@ -99,3 +99,4 @@ class IndicConformerEngine(ASREngine):
             res.metadata["original_candidate"] = "ai4bharat/indicconformer_stt_mr_hybrid_ctc_rnnt_large"
             res.metadata["fallback_reason"] = "NeMo C-extensions incompatible with Python 3.14 macOS arm64"
             return res
+

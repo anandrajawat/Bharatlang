@@ -96,3 +96,4 @@ def ingest_pdf_document(
         doc_record.error_message = str(e)
         db.commit()
         raise
+

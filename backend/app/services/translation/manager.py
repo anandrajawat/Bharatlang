@@ -78,3 +78,4 @@ class TranslationManager:
             self._nllb_engine.unload_model()
 
 translation_manager = TranslationManager()
+

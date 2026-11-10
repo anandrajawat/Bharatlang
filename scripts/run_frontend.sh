@@ -21,3 +21,4 @@ echo "⚡ Starting BharatLangTech AI React Frontend on http://localhost:5173"
 echo "======================================================================"
 
 exec npm run dev -- --host
+

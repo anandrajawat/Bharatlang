@@ -62,3 +62,4 @@ def check_path_traversal(target_path: Path, base_dir: Path) -> bool:
         return resolved_base in resolved_target.parents or resolved_target == resolved_base
     except Exception:
         return False
+

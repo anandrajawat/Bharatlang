@@ -28,3 +28,4 @@ def test_audio_preprocessing_on_signal(tmp_path):
     assert meta["is_silent"] is False
     assert meta["rms_energy"] > 0.1
     assert len(arr) == len(tone)
+

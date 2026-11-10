@@ -89,3 +89,4 @@ echo "Press Ctrl+C to stop all services."
 
 # Wait for processes
 wait $BACKEND_PID $FRONTEND_PID
+

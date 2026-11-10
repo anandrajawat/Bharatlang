@@ -64,3 +64,4 @@ async def get_terminology_glossary():
         "government_agricultural_glossary": GLOSSARY_MARATHI_ENGLISH,
         "varhadi_lexical_mappings": VARHADI_TO_STANDARD_MARATHI
     }
+

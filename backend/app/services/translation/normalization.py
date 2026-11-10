@@ -163,3 +163,4 @@ def normalize_varhadi_to_marathi(original_text: str) -> Tuple[str, List[Dict[str
 
     normalized_text = " ".join(normalized_tokens)
     return normalized_text, replacements_made
+

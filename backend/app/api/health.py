@@ -40,3 +40,4 @@ async def system_health():
             "tts_voice": settings.TTS_VOICE
         }
     }
+

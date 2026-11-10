@@ -100,3 +100,4 @@ class EvaluationResult(Base):
     latency = Column(Float, nullable=True)  # in seconds or ms
     details = Column(JSON, nullable=True)  # Full benchmark details, sample metrics
     evaluation_date = Column(DateTime, default=datetime.datetime.utcnow)
+

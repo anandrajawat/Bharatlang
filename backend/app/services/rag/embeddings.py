@@ -71,3 +71,4 @@ class EmbeddingEngine:
         return np.array(emb[0], dtype=np.float32)
 
 embedding_engine = EmbeddingEngine()
+
