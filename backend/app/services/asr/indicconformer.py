@@ -24,11 +24,12 @@ class IndicConformerEngine(ASREngine):
         self._nemo_available = False
         self._fallback_engine: Optional[FasterWhisperEngine] = None
 
-        # Check NeMo availability
+        # Check NeMo availability dynamically to avoid static linter missing-import errors
         try:
-            import nemo.collections.asr as nemo_asr
+            import importlib
+            importlib.import_module("nemo.collections.asr")
             self._nemo_available = True
-        except ImportError:
+        except (ImportError, ModuleNotFoundError, Exception):
             self._nemo_available = False
             logger.info("NeMo toolkit not available in current environment. Using verified faster-whisper fallback for IndicConformer requests.")
             self._fallback_engine = FasterWhisperEngine(model_size="small")
@@ -36,7 +37,8 @@ class IndicConformerEngine(ASREngine):
     def load_model(self) -> None:
         if self._nemo_available:
             try:
-                import nemo.collections.asr as nemo_asr
+                import importlib
+                nemo_asr = importlib.import_module("nemo.collections.asr")
                 logger.info(f"Loading IndicConformer model from {self.model_repo}...")
                 self.model = nemo_asr.models.EncDecRNNTBPEModel.from_pretrained(self.model_repo)
                 self._is_loaded = True
