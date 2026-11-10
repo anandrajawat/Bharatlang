@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Mic, Square, Play, Pause, Edit3, Send, AlertTriangle, RefreshCw, Volume2, Upload, FileAudio, Check, Sparkles } from 'lucide-react';
 import { apiClient } from '../services/api';
 import { TranscriptionResponse } from '../types';
+import { getTranslation } from '../i18n/translations';
 
 interface VoiceAssistantScreenProps {
   onSubmitQueryToChat: (query: string, language: string) => void;
@@ -12,6 +13,8 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
   onSubmitQueryToChat,
   selectedLanguage
 }) => {
+  const t = getTranslation(selectedLanguage);
+
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [recordedAudioUrl, setRecordedAudioUrl] = useState<string | null>(null);
@@ -20,9 +23,7 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [transcription, setTranscription] = useState<TranscriptionResponse | null>(null);
   const [editableTranscript, setEditableTranscript] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [feedbackSuccess, setFeedbackSuccess] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -75,7 +76,7 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
       mediaRecorder.start();
       setIsRecording(true);
     } catch (err: any) {
-      setErrorMsg('मायक्रोफोन परवानगी नाकारली किंवा मायक्रोफोन उपलब्ध नाही. (Microphone access denied or unavailable.)');
+      setErrorMsg(t.voice.micPermissionError);
     }
   };
 
@@ -95,7 +96,7 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
       setTranscription(result);
       setEditableTranscript(result.recognized_text);
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || 'ध्वनी रूपांतरण अयशस्वी झाले. कृपया पुन्हा प्रयत्न करा.');
+      setErrorMsg(err.response?.data?.detail || t.voice.noAudioRecorded);
     } finally {
       setIsLoading(false);
     }
@@ -148,16 +149,16 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
     <div className="max-w-4xl mx-auto space-y-6 pb-12">
       {/* Title */}
       <div className="text-center space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-          स्थानिक बोलीभाषा आवाज सहाय्यक (Voice Assistant)
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          {t.voice.title}
         </h1>
-        <p className="text-sm text-slate-600 max-w-xl mx-auto">
-          वऱ्हाडी किंवा प्रमाण मराठीत बोला. सिस्टीम आपला आवाज अचूक ओळखेल आणि प्रश्न विचारण्यापूर्वी तुम्हाला दुरुस्तीची मुभा देईल.
+        <p className="text-xs sm:text-sm text-slate-600 max-w-xl mx-auto leading-relaxed">
+          {t.voice.subtitle}
         </p>
       </div>
 
       {/* Main Voice Recording Card */}
-      <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-md flex flex-col items-center justify-center space-y-6">
+      <div className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-md flex flex-col items-center justify-center space-y-6">
         {/* Waveform / Visualizer State */}
         <div className="h-16 flex items-center justify-center space-x-1 w-full max-w-xs">
           {isRecording ? (
@@ -173,8 +174,8 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
             ))
           ) : (
             <div className="text-xs text-slate-400 font-medium flex items-center space-x-1.5">
-              <Sparkles className="w-4 h-4 text-slate-300" />
-              <span>मायक्रोफोन बटण दाबून बोला किंवा ऑडिओ फाईल अपलोड करा</span>
+              <Sparkles className="w-4 h-4 text-amber-500" />
+              <span>{t.voice.subtitle}</span>
             </div>
           )}
         </div>
@@ -190,18 +191,18 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
             className={`w-28 h-28 rounded-full flex flex-col items-center justify-center transition-all shadow-xl relative z-10 ${
               isRecording
                 ? 'bg-red-600 hover:bg-red-700 text-white scale-105 ring-4 ring-red-200'
-                : 'bg-gradient-to-tr from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white hover:scale-105'
+                : 'bg-gradient-to-tr from-indigo-600 to-indigo-800 hover:from-indigo-700 hover:to-indigo-900 text-white hover:scale-105 active:scale-95'
             } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isRecording ? (
               <>
                 <Square className="w-8 h-8 fill-current mb-1" />
-                <span className="text-xs font-bold uppercase tracking-wider">थांबवा</span>
+                <span className="text-xs font-bold uppercase tracking-wider">{t.voice.recordStop}</span>
               </>
             ) : (
               <>
                 <Mic className="w-10 h-10 mb-1" />
-                <span className="text-xs font-bold uppercase tracking-wider">बोला</span>
+                <span className="text-xs font-bold uppercase tracking-wider">{t.voice.recordStart}</span>
               </>
             )}
           </button>
@@ -211,12 +212,12 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
         <div className="flex items-center space-x-3 text-sm">
           {isRecording ? (
             <span className="font-mono text-red-600 font-bold bg-red-50 px-3 py-1 rounded-full border border-red-200">
-              रेकॉर्डिंग चालू: {formatDuration(recordingDuration)}
+              {t.voice.recordingTime}: {formatDuration(recordingDuration)}
             </span>
           ) : (
             recordedAudioUrl && (
               <span className="font-mono text-slate-600 bg-slate-100 px-3 py-1 rounded-full">
-                कालावधी: {formatDuration(transcription?.duration_sec ? Math.round(transcription.duration_sec) : recordingDuration)}
+                {t.voice.duration}: {formatDuration(transcription?.duration_sec ? Math.round(transcription.duration_sec) : recordingDuration)}
               </span>
             )
           )}
@@ -233,19 +234,19 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="text-xs font-medium text-slate-500 hover:text-indigo-600 flex items-center space-x-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-100 transition-all"
+            className="text-xs font-semibold text-slate-600 hover:text-indigo-600 flex items-center space-x-1.5 px-4 py-2 rounded-xl hover:bg-slate-100 transition-all border border-slate-200"
           >
             <Upload className="w-3.5 h-3.5" />
-            <span>ऑडिओ फाईल अपलोड करा (WAV, MP3, WEBM)</span>
+            <span>{t.voice.uploadAudio}</span>
           </button>
         </div>
 
         {/* Audio Player if recording exists */}
         {recordedAudioUrl && (
-          <div className="w-full max-w-md bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center justify-between">
+          <div className="w-full max-w-md bg-slate-50 p-3 rounded-2xl border border-slate-200 flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <FileAudio className="w-4 h-4 text-indigo-600" />
-              <span className="text-xs font-medium text-slate-700">तुमचा आवाज रेकॉर्ड झाला आहे</span>
+              <span className="text-xs font-medium text-slate-700">{t.voice.originalTranscript}</span>
             </div>
             <audio ref={audioPlayerRef} src={recordedAudioUrl} controls className="h-8 max-w-[200px]" />
           </div>
@@ -254,7 +255,7 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
 
       {/* Error Alert */}
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm flex items-center space-x-2 shadow-xs">
           <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           <span>{errorMsg}</span>
         </div>
@@ -262,26 +263,26 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
 
       {/* Loading State */}
       {isLoading && (
-        <div className="bg-indigo-50 border border-indigo-200 p-6 rounded-2xl flex items-center justify-center space-x-3 text-indigo-700">
+        <div className="bg-indigo-50 border border-indigo-200 p-6 rounded-2xl flex items-center justify-center space-x-3 text-indigo-700 shadow-xs">
           <RefreshCw className="w-5 h-5 animate-spin" />
           <span className="text-sm font-semibold">
-            ध्वनी ओळख आणि वऱ्हाडी बोलीभाषा विश्लेषण प्रक्रिया चालू आहे... (Transcribing & Normalizing)
+            {t.voice.processing}
           </span>
         </div>
       )}
 
       {/* Interactive Transcript Editor Card */}
       {transcription && !isLoading && (
-        <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
+        <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center space-x-2">
               <Edit3 className="w-5 h-5 text-indigo-600" />
               <h2 className="text-base font-bold text-slate-900">
-                ओळखलेला संवाद व संपादन (Transcript Preview & Editor)
+                {t.voice.previewTitle}
               </h2>
             </div>
             {/* Dialect Badge */}
-            <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
               {transcription.detected_dialect}
             </span>
           </div>
@@ -291,7 +292,7 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
             <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs text-amber-800 flex items-start space-x-2">
               <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold">ओळख गुणवत्तेबद्दल अनिश्चितता (Uncertain Acoustic Recognition)</p>
+                <p className="font-semibold">{t.voice.confidence}</p>
                 <p>{transcription.warning_message}</p>
               </div>
             </div>
@@ -299,60 +300,60 @@ export const VoiceAssistantScreen: React.FC<VoiceAssistantScreenProps> = ({
 
           {/* Raw Recognized Transcript vs Editable */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-slate-500 uppercase">
-              संवाद तपासा किंवा सुधारणा करा (Edit Transcript):
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              {t.voice.editTranscript}:
             </label>
             <textarea
               value={editableTranscript}
               onChange={(e) => setEditableTranscript(e.target.value)}
               rows={3}
-              className="w-full text-base p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-sans"
-              placeholder="ओळखलेला मजकूर..."
+              className="w-full text-base p-3.5 rounded-2xl border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 font-sans shadow-inner"
+              placeholder={t.voice.originalTranscript}
             />
           </div>
 
           {/* Non-destructive Normalization Info */}
           {transcription.dialect_replacements && transcription.dialect_replacements.length > 0 && (
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs space-y-1">
-              <span className="font-semibold text-slate-700">वऱ्हाडी बोलीभाषा विश्लेषण (Dialect Normalization):</span>
-              <p className="text-slate-600">
-                प्रमाण मराठी रूपांतरण: <span className="font-medium text-slate-900">{transcription.normalized_text}</span>
+            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs space-y-2">
+              <span className="font-bold text-slate-700 block">{t.voice.normalizedQuery}:</span>
+              <p className="text-slate-800 font-medium bg-white p-2.5 rounded-xl border border-slate-200">
+                {transcription.normalized_text}
               </p>
               <div className="flex flex-wrap gap-1.5 mt-1">
                 {transcription.dialect_replacements.map((r, i) => (
-                  <span key={i} className="bg-white px-2 py-0.5 rounded border border-slate-200 text-slate-600">
-                    <span className="line-through text-slate-400">{r.original}</span> → <span className="font-semibold text-indigo-600">{r.normalized}</span>
+                  <span key={i} className="bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600">
+                    <span className="line-through text-slate-400">{r.original}</span> → <span className="font-bold text-indigo-600">{r.normalized}</span>
                   </span>
                 ))}
               </div>
             </div>
           )}
 
-          {/* Metadata Bar */}
-          <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-100">
+          {/* Metadata Bar & Actions */}
+          <div className="flex flex-wrap items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
             <div className="flex items-center space-x-3">
-              <span>मॉडेल: <strong className="text-slate-700">{transcription.model_name}</strong></span>
-              <span>वेळ: <strong className="text-slate-700">{transcription.processing_latency_sec}s</strong></span>
+              <span>{t.eval.modelSelectLabel} <strong className="text-slate-700">{transcription.model_name}</strong></span>
+              <span>{t.voice.duration}: <strong className="text-slate-700">{transcription.processing_latency_sec}s</strong></span>
               {transcription.overall_confidence !== null && (
-                <span>विश्वासार्हता: <strong className="text-slate-700">{Math.round(transcription.overall_confidence * 100)}%</strong></span>
+                <span>{t.voice.confidence}: <strong className="text-slate-700">{Math.round(transcription.overall_confidence * 100)}%</strong></span>
               )}
             </div>
 
             {/* Action Buttons */}
-            <div className="flex items-center space-x-2 mt-2 sm:mt-0">
+            <div className="flex items-center space-x-2 mt-3 sm:mt-0">
               <button
                 onClick={handleReprocess}
-                className="px-3 py-1.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 font-medium text-xs flex items-center space-x-1"
+                className="px-3.5 py-2 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 font-semibold text-xs flex items-center space-x-1.5 transition-all"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>पुन्हा तपासा</span>
+                <span>{t.voice.saveEdit}</span>
               </button>
               <button
                 onClick={handleSubmit}
-                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs flex items-center space-x-1.5 shadow"
+                className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center space-x-1.5 shadow-md shadow-indigo-600/20 transition-all hover:scale-[1.02]"
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>प्रश्न विचारा (Submit to Assistant)</span>
+                <span>{t.voice.submitToChat}</span>
               </button>
             </div>
           </div>

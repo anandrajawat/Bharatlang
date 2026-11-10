@@ -1,9 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload, FileText, Trash2, RefreshCw, CheckCircle, AlertTriangle, Layers, BookOpen, ExternalLink } from 'lucide-react';
+import { Upload, FileText, Trash2, RefreshCw, CheckCircle, AlertTriangle, Layers, BookOpen } from 'lucide-react';
 import { apiClient } from '../services/api';
 import { KnowledgeBaseStats, DocumentItem } from '../types';
+import { getTranslation } from '../i18n/translations';
 
-export const KnowledgeBaseScreen: React.FC = () => {
+interface KnowledgeBaseScreenProps {
+  selectedLanguage: string;
+}
+
+export const KnowledgeBaseScreen: React.FC<KnowledgeBaseScreenProps> = ({ selectedLanguage }) => {
+  const t = getTranslation(selectedLanguage);
+
   const [kbData, setKbData] = useState<KnowledgeBaseStats | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -23,7 +30,7 @@ export const KnowledgeBaseScreen: React.FC = () => {
       const data = await apiClient.getDocuments();
       setKbData(data);
     } catch (err: any) {
-      setErrorMsg('कागदपत्रे मिळवण्यात त्रुटी निर्माण झाली.');
+      setErrorMsg('Error retrieving documents.');
     } finally {
       setIsLoading(false);
     }
@@ -37,7 +44,7 @@ export const KnowledgeBaseScreen: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       if (!file.name.toLowerCase().endsWith('.pdf')) {
-        setErrorMsg('केवळ PDF फाईल (.pdf) समर्थित आहेत.');
+        setErrorMsg('Only PDF documents (.pdf) are supported.');
         return;
       }
       setUploadFile(file);
@@ -57,27 +64,27 @@ export const KnowledgeBaseScreen: React.FC = () => {
 
     try {
       await apiClient.uploadDocument(uploadFile, customTitle, issuingAuthority);
-      setSuccessMsg(`'${customTitle || uploadFile.name}' यशस्वीरित्या इंडेक्स करण्यात आले.`);
+      setSuccessMsg(`'${customTitle || uploadFile.name}' indexed successfully.`);
       setUploadFile(null);
       setCustomTitle('');
       if (fileInputRef.current) fileInputRef.current.value = '';
       await fetchDocuments();
     } catch (err: any) {
-      setErrorMsg(err.response?.data?.detail || 'कागदपत्र अपलोड अयशस्वी झाले.');
+      setErrorMsg(err.response?.data?.detail || 'Document upload and indexing failed.');
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleDelete = async (docId: string, title: string) => {
-    if (!window.confirm(`खरोखर '${title}' हे कागदपत्र हटवायचे आहे का?`)) return;
+    if (!window.confirm(`Delete document '${title}'?`)) return;
 
     try {
       await apiClient.deleteDocument(docId);
-      setSuccessMsg(`'${title}' हटवण्यात आले.`);
+      setSuccessMsg(`'${title}' deleted.`);
       await fetchDocuments();
     } catch (err: any) {
-      setErrorMsg('कागदपत्र हटवण्यात त्रुटी आली.');
+      setErrorMsg('Failed to delete document.');
     }
   };
 
@@ -87,10 +94,10 @@ export const KnowledgeBaseScreen: React.FC = () => {
     setSuccessMsg(null);
     try {
       await apiClient.reindexDocuments();
-      setSuccessMsg('संपूर्ण ज्ञान भांडार पुन्हा अनुक्रमित (Reindexed) करण्यात आले.');
+      setSuccessMsg('Knowledge base index rebuilt successfully.');
       await fetchDocuments();
     } catch (err: any) {
-      setErrorMsg('पुन्हा अनुक्रमित करणे अयशस्वी झाले.');
+      setErrorMsg('Reindexing failed.');
     } finally {
       setIsLoading(false);
     }
@@ -101,197 +108,165 @@ export const KnowledgeBaseScreen: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-            शासकीय ज्ञान भांडार (Knowledge Base)
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            {t.kb.title}
           </h1>
-          <p className="text-sm text-slate-600 mt-1">
-            महाराष्ट्र शासनाचे अधिकृत शासन निर्णय (GR) आणि योजना कागदपत्रे व्यवस्थापित करा.
+          <p className="text-xs sm:text-sm text-slate-600 mt-1">
+            {t.kb.subtitle}
           </p>
         </div>
         <button
           onClick={handleReindex}
           disabled={isLoading}
-          className="flex items-center space-x-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-semibold shadow transition-all self-start sm:self-auto"
+          className="flex items-center space-x-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold shadow-md transition-all self-start sm:self-auto"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
-          <span>निर्देशांक पुनर्बांधणी (Rebuild Index)</span>
+          <span>{isLoading ? t.kb.rebuilding : t.kb.rebuildBtn}</span>
         </button>
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
           <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
             <BookOpen className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">एकूण दस्तऐवज</span>
-            <p className="text-2xl font-bold text-slate-900">{kbData?.total_documents || 0}</p>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.kb.statsTotalDocs}</span>
+            <p className="text-2xl font-black text-slate-900">{kbData?.total_documents || 0}</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-sm flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
             <Layers className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">इंडेक्स केलेले उतारे (Chunks)</span>
-            <p className="text-2xl font-bold text-slate-900">{kbData?.index_stats.total_chunks || 0}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
-            <CheckCircle className="w-6 h-6" />
-          </div>
-          <div>
-            <span className="text-xs font-semibold text-slate-500 uppercase">वेक्टर सर्च स्थिती</span>
-            <p className="text-sm font-bold text-emerald-600 mt-1">FAISS Inner Product (Active)</p>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">{t.kb.statsTotalChunks}</span>
+            <p className="text-2xl font-black text-slate-900">{kbData?.index_stats.total_chunks || 0}</p>
           </div>
         </div>
       </div>
 
-      {/* Alert Banners */}
+      {/* Success / Error Alerts */}
+      {successMsg && (
+        <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-2xl text-sm flex items-center space-x-2 shadow-xs">
+          <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+          <span>{successMsg}</span>
+        </div>
+      )}
       {errorMsg && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-2xl text-sm flex items-center space-x-2 shadow-xs">
+          <AlertTriangle className="w-4 h-4 text-red-600 flex-shrink-0" />
           <span>{errorMsg}</span>
         </div>
       )}
 
-      {successMsg && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-3 rounded-xl text-sm flex items-center space-x-2">
-          <CheckCircle className="w-4 h-4 flex-shrink-0" />
-          <span>{successMsg}</span>
-        </div>
-      )}
-
-      {/* Upload New Document Card */}
-      <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-4">
-        <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
-          <Upload className="w-4 h-4 text-indigo-600" />
-          <span>नवीन शासकीय PDF कागदपत्र जोडा (Upload Scheme Document)</span>
+      {/* Upload Form Card */}
+      <div className="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-sm">
+        <h2 className="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
+          <Upload className="w-5 h-5 text-indigo-600" />
+          <span>{t.kb.uploadHeader}</span>
         </h2>
 
         <form onSubmit={handleUploadSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">
-                योजनेचे नाव / शीर्षक (Title):
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                {t.kb.titleLabel} *
               </label>
               <input
                 type="text"
+                required
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
-                placeholder="उदा. नमो शेतकरी महासन्मान निधी योजना..."
-                className="w-full text-sm p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g. Namo Shetkari Yojana GR"
+                className="w-full text-sm p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-600 block mb-1">
-                निर्गमित करणारा विभाग (Issuing Authority):
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+                {t.kb.authorityLabel}
               </label>
               <input
                 type="text"
                 value={issuingAuthority}
                 onChange={(e) => setIssuingAuthority(e.target.value)}
-                placeholder="उदा. कृषी विभाग, महाराष्ट्र शासन..."
-                className="w-full text-sm p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"
+                placeholder="e.g. Government of Maharashtra"
+                className="w-full text-sm p-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-indigo-500"
               />
             </div>
           </div>
 
-          {/* File input area */}
-          <div className="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-indigo-400 transition-all cursor-pointer"
-               onClick={() => fileInputRef.current?.click()}>
+          <div>
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
+              {t.kb.fileLabel} *
+            </label>
             <input
               type="file"
               ref={fileInputRef}
-              onChange={handleFileSelect}
+              required
               accept=".pdf"
-              className="hidden"
+              onChange={handleFileSelect}
+              className="w-full text-xs text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer border border-slate-300 rounded-xl p-1"
             />
-            <div className="flex flex-col items-center space-y-2">
-              <FileText className="w-8 h-8 text-indigo-600" />
-              <p className="text-sm font-medium text-slate-700">
-                {uploadFile ? uploadFile.name : 'PDF फाईल निवडा किंवा येथे ड्रॅग करा (Click to choose PDF)'}
-              </p>
-              <p className="text-xs text-slate-400">
-                PyMuPDF आणि Tesseract OCR स्कॅन केलेल्या कागदपत्रांना आपोआप ओळखते.
-              </p>
-            </div>
           </div>
 
           <button
             type="submit"
             disabled={!uploadFile || isUploading}
-            className="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white rounded-xl text-sm font-semibold shadow transition-all flex items-center justify-center space-x-2"
+            className="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-bold text-xs flex items-center space-x-2 shadow-md shadow-indigo-600/20 transition-all cursor-pointer"
           >
-            {isUploading ? (
-              <>
-                <RefreshCw className="w-4 h-4 animate-spin" />
-                <span>कागदपत्र तपासणी व इंडेक्सिंग चालू आहे...</span>
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4" />
-                <span>कागदपत्र अपलोड आणि इंडेक्स करा</span>
-              </>
-            )}
+            <Upload className="w-4 h-4" />
+            <span>{isUploading ? t.kb.uploading : t.kb.uploadBtn}</span>
           </button>
         </form>
       </div>
 
       {/* Indexed Documents Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="text-base font-bold text-slate-900">
-            इंडेक्स केलेल्या कागदपत्रांची यादी (Uploaded Scheme Documents)
+      <div className="bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="p-5 bg-slate-50 border-b border-slate-200">
+          <h2 className="text-sm font-bold text-slate-800">
+            {t.kb.indexedListHeader}
           </h2>
-          <span className="text-xs font-semibold text-slate-500">
-            {kbData?.documents.length || 0} कागदपत्रे
-          </span>
         </div>
 
-        {kbData && kbData.documents.length > 0 ? (
+        {kbData?.documents && kbData.documents.length > 0 ? (
           <div className="divide-y divide-slate-100">
-            {kbData.documents.map((doc) => (
-              <div key={doc.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-all">
-                <div className="space-y-1">
-                  <div className="flex items-center space-x-2">
-                    <FileText className="w-4 h-4 text-indigo-600 flex-shrink-0" />
-                    <h3 className="text-sm font-bold text-slate-900">{doc.title}</h3>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {doc.processing_status}
-                    </span>
+            {kbData.documents.map((doc: DocumentItem) => (
+              <div key={doc.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50 transition-colors">
+                <div className="flex items-start space-x-3">
+                  <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600 shrink-0">
+                    <FileText className="w-5 h-5" />
                   </div>
-                  <div className="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
-                    <span>विभाग: {doc.issuing_authority}</span>
-                    <span>फाईल: {doc.filename} ({doc.file_size_kb} KB)</span>
-                    <span>उतारे: <strong>{doc.chunk_count} chunks</strong></span>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 leading-snug">{doc.title}</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {doc.issuing_authority} • {doc.chunk_count} chunks • {doc.file_size_kb} KB
+                    </p>
+                    <span className="inline-block font-mono text-[11px] text-slate-400 mt-0.5">
+                      {doc.filename}
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2 self-end sm:self-center">
-                  <button
-                    onClick={() => handleDelete(doc.id, doc.title)}
-                    className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                    title="कागदपत्र हटवा"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleDelete(doc.id, doc.title)}
+                  className="self-end sm:self-center p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                  title={t.kb.docDelete}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="p-8 text-center text-slate-400 text-sm">
-            कोणतीही कागदपत्रे उपलब्ध नाहीत. वरून नवीन PDF अपलोड करा.
+          <div className="p-8 text-center text-slate-400 text-xs">
+            {t.kb.emptyList}
           </div>
         )}
       </div>
     </div>
   );
 };
-

@@ -7,12 +7,15 @@ import { KnowledgeBaseScreen } from './pages/KnowledgeBaseScreen';
 import { EvaluationScreen } from './pages/EvaluationScreen';
 import { apiClient } from './services/api';
 import { SystemHealth } from './types';
+import { getTranslation } from './i18n/translations';
 
 export function App() {
   const [activeScreen, setActiveScreen] = useState<string>('home');
   const [selectedLanguage, setSelectedLanguage] = useState<string>('mr');
   const [passedChatQuery, setPassedChatQuery] = useState<string>('');
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+
+  const t = getTranslation(selectedLanguage);
 
   // Poll system health on initial startup
   useEffect(() => {
@@ -39,7 +42,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Navbar */}
       <Navbar
         activeScreen={activeScreen}
@@ -50,12 +53,13 @@ export function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {activeScreen === 'home' && (
           <HomeScreen
             onNavigate={setActiveScreen}
             systemHealth={systemHealth}
             onSelectSampleQuery={handleSelectSampleQuery}
+            selectedLanguage={selectedLanguage}
           />
         )}
 
@@ -73,16 +77,19 @@ export function App() {
           />
         )}
 
-        {activeScreen === 'kb' && <KnowledgeBaseScreen />}
+        {activeScreen === 'kb' && (
+          <KnowledgeBaseScreen selectedLanguage={selectedLanguage} />
+        )}
 
-        {activeScreen === 'eval' && <EvaluationScreen />}
+        {activeScreen === 'eval' && (
+          <EvaluationScreen selectedLanguage={selectedLanguage} />
+        )}
       </main>
 
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-4 px-6 text-center">
-        <p>
-          © 2026 BharatLangTech AI — Dialect-Aware Multilingual Voice Intelligence Platform for Indian Citizens.
-          All inference runs 100% locally on Apple Silicon (M2). No proprietary cloud APIs.
+      <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 text-xs py-5 px-6 text-center">
+        <p className="max-w-4xl mx-auto leading-relaxed">
+          {t.footer.text}
         </p>
       </footer>
     </div>
@@ -90,4 +97,3 @@ export function App() {
 }
 
 export default App;
-
